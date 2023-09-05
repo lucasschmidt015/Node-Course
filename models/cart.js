@@ -1,43 +1,34 @@
-const fs = require('fs');
-const path = require('path');
-
-const p = path.join(
-    path.dirname(process.mainModule.filename), 
-    'data',
-    'cart.json'
-    );
-
+const db = require('../util/database');
+const Product = require('./product');
 
 module.exports = class Cart {
 
     static addProduct(id, productPrice) {
-        // Fetch the previous cart
-        fs.readFile(p, (err, fileContent) => {
-            let cart = {products: [], totalPrice: 0};
-            if (!err) {
-                cart = JSON.parse(fileContent);
+        db.execute('SELECT * FROM my_cart')
+        .then(([MyCart]) => {
+            if (MyCart) {
+                console.log(MyCart)
+                const products = JSON.parse(MyCart[0].products);
+                const total_price = MyCart[0].total_price;
+                const productIndex = products.findIndex(prod => prod.id === id);
+                
+                if (productIndex) { // It means that the product alredy exists
+                    
+                    products[productIndex].qty = products[productIndex].qty + 1;
+
+                    return db.execute(`UPDATE my_cart set products = '${JSON.stringify(products)}', total_price = ${MyCart[0].total_price + productPrice}`)
+                } else { 
+                    const newProduct = {id: id, qty: 1};
+                    products.push(newProduct);
+
+                    const new_total = total_price + productPrice;
+
+                    return db.execute(`UPDATE my_cart SET products = '${JSON.stringify(products)}', total_price = ${new_total}`)
+                }
             }
-
-            // Analyze the cart => Find existing product
-            const existingProductIndex = cart.products.findIndex(prod => prod.id === id)
-            const existingProduct = cart.products[existingProductIndex];
-            let updatedProduct;
-
-            // Add new product/ increase quatity
-            if (existingProduct) {
-                updatedProduct = { ...existingProduct };
-                updatedProduct.qty = updatedProduct.qty + 1;
-                cart.products = [...cart.products];
-                cart.products[existingProductIndex] = updatedProduct;
-            } else {
-                updatedProduct = {id: id, qty: 1};
-                cart.products = [...cart.products, updatedProduct];
-            }
-            cart.totalPrice = cart.totalPrice + +productPrice;
-
-            fs.writeFile(p, JSON.stringify(cart), (err) => {
-                // console.log(err);
-            })
+        })
+        .catch(err => {
+            console.log(err);
         })
     }
 

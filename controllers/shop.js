@@ -66,13 +66,22 @@ exports.getCart = (req, res, next) => {
 
 exports.postCart = (req, res, next) => {
     const productId = req.body.productId;
-    
-    Product.findById(productId, (product) => {
-        Cart.addProduct(productId, product.price);
+
+    Product.findById(productId)
+    .then(([product]) => {
+        Cart.addProduct(productId, product[0].price)
+        .then(() => {
+            console.log('Deu boa final <---');
+            res.redirect('/cart');
+        })
+        .catch(err => {
+            console.log(err);
+        })
     })
-
-
-    res.redirect('/cart');
+    .catch(err => {
+        console.log(err);
+        res.redirect('/');
+    })
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {

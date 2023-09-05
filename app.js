@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const Cart = require('./models/cart');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
