@@ -79,27 +79,40 @@ exports.postCart = (req, res, next) => {
 
     Product.findById(productId)
     .then(([product]) => {
-        // console.log('<------------');
         Cart.addProduct(productId, product[0].price)
         .then(() => {            
             res.redirect('/cart');
         })
         .catch(err => {
-            console.log('<------', err);
+            console.log(err)
         })
     })
     .catch(err => {
-        // console.log('<----', err);
+        console.log(err);
     })
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
 
-    Product.findById(prodId, product => {
-        Cart.deleteProduct(prodId, product.price);
-        res.redirect('/cart');
+    Product.findById(prodId)
+    .then(([myProduct]) => {
+        Cart.deleteProduct(prodId, myProduct[0].price)
+        .then(() => {
+            res.redirect('/cart');
+        })
+        .catch(err => {
+            console.log(err);
+        })
     })
+    .catch(err => {
+        console.log(err);
+    })
+
+    // Product.findById(prodId, product => {
+    //     Cart.deleteProduct(prodId, product.price);
+    //     res.redirect('/cart');
+    // })
 }
 
 exports.getOrders = (req, res, next) => {

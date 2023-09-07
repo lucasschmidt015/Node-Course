@@ -4,7 +4,7 @@ const Product = require('./product');
 module.exports = class Cart {
 
     static addProduct(id, productPrice) {
-        db.execute('SELECT * FROM my_cart')
+        return db.execute('SELECT * FROM my_cart')
         .then(([MyCart]) => {
             if (MyCart) {
                 const products = JSON.parse(MyCart[0].products);
@@ -16,13 +16,9 @@ module.exports = class Cart {
                 
                     products[productIndex].qty = products[productIndex].qty + 1;
 
-                    // console.log('field products: ', JSON.stringify(products));
-                    // console.log('Type: ', typeof(JSON.stringify(products)));
-                    // console.log('field total_price: ', MyCart[0].total_price + productPrice);
-                    // console.log('Type: ', typeof(MyCart[0].total_price + productPrice));
                     return db.execute(`UPDATE my_cart set products = '${JSON.stringify(products)}', total_price = ${MyCart[0].total_price + productPrice}`)
+                    
                 } else { 
-                    // console.log('tá entrando no else<-------')
                     const newProduct = {id: id, qty: 1};
                     products.push(newProduct);
 
@@ -39,28 +35,27 @@ module.exports = class Cart {
 
     static deleteProduct(id, productPrice) {
 
-        // fs.readFile(p, (err, fileContent) => { 
-        //     if (err) {
-        //         return;
-        //     }
-        //     const updatedCart = { ...JSON.parse(fileContent) };
-        //     const product = updatedCart.products.find(prod => prod.id === id);
+        return this.getCart()
+        .then(([myCart]) => {
+            const Cart = JSON.parse(myCart[0].products);
+            const product = Cart.find(prod => prod.id === id);
 
-        //     if (!product) {
-        //         return;
-        //     }
+            if (!product) {
+                return;
+            }
 
-        //     const productQty = product.qty;
-        //     updatedCart.products = updatedCart.products.filter(prod => prod.id !== id);
-        //     updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQty;
+            const productQty = product.qty;
+            const updatedCart = Cart.filter(Crt => Crt.id !== id);
+            const total_price = myCart[0].total_price - productPrice * productQty
 
-        //     fs.writeFile(p, JSON.stringify(updatedCart), (err) => {
-        //         // console.log(err);
-        //     })
-        // })
+            return db.execute(`UPDATE my_cart SET products = '${JSON.stringify(updatedCart)}', total_price = ${total_price}`)
+        })
+        .catch(err => {
+            console.log(err);
+        })
     }
 
-    static getCart(cb) {
+    static getCart() {
         return db.execute('SELECT * FROM my_cart');
     }
 }
