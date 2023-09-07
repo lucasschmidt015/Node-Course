@@ -67,12 +67,10 @@ exports.getCart = (req, res, next) => {
         })
         .catch(err => {
             console.log(err);
-            res.redirect('/');
         })
     })
     .catch(err => {
         console.log(err);
-        res.redirect('/');
     })    
 }
 
@@ -81,17 +79,17 @@ exports.postCart = (req, res, next) => {
 
     Product.findById(productId)
     .then(([product]) => {
+        // console.log('<------------');
         Cart.addProduct(productId, product[0].price)
         .then(() => {            
             res.redirect('/cart');
         })
         .catch(err => {
-            console.log(err);
+            console.log('<------', err);
         })
     })
     .catch(err => {
-        console.log(err);
-        res.redirect('/');
+        // console.log('<----', err);
     })
 };
 

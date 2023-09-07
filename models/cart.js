@@ -8,18 +8,21 @@ module.exports = class Cart {
         .then(([MyCart]) => {
             if (MyCart) {
                 const products = JSON.parse(MyCart[0].products);
-                console.log(products);
+                
                 const total_price = MyCart[0].total_price;
                 const productIndex = products.findIndex(prod => prod.id === id);
-
-                console.log(`ProductIndex: ${productIndex}`);
                 
                 if (productIndex != -1) { // It means that the product already exists
-                    
+                
                     products[productIndex].qty = products[productIndex].qty + 1;
 
+                    // console.log('field products: ', JSON.stringify(products));
+                    // console.log('Type: ', typeof(JSON.stringify(products)));
+                    // console.log('field total_price: ', MyCart[0].total_price + productPrice);
+                    // console.log('Type: ', typeof(MyCart[0].total_price + productPrice));
                     return db.execute(`UPDATE my_cart set products = '${JSON.stringify(products)}', total_price = ${MyCart[0].total_price + productPrice}`)
                 } else { 
+                    // console.log('tá entrando no else<-------')
                     const newProduct = {id: id, qty: 1};
                     products.push(newProduct);
 
