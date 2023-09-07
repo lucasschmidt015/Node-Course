@@ -46,11 +46,15 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
-    Cart.getCart(cart => {
-        Product.fetchAll(products => {
+    Cart.getCart()
+    .then(([cartRows]) => {
+        Product.fetchAll()
+        .then(([productsRows]) => {
+            const Cart = JSON.parse(cartRows[0].products);
             const cartProducts = [];
-            for (product of products) {
-                const cartProductData = cart.products.find(prod => prod.id === product.id)
+            for (product of productsRows) {
+                const cartProductData = Cart.find(prod => parseInt(prod.id) === product.id)
+                
                 if (cartProductData) {
                     cartProducts.push({productData: product, qty: cartProductData.qty});
                 }
@@ -59,9 +63,17 @@ exports.getCart = (req, res, next) => {
                 path: '/cart',
                 pageTitle: 'Your Cart',
                 products: cartProducts
-            });
+            })
+        })
+        .catch(err => {
+            console.log(err);
+            res.redirect('/');
         })
     })
+    .catch(err => {
+        console.log(err);
+        res.redirect('/');
+    })    
 }
 
 exports.postCart = (req, res, next) => {
@@ -70,8 +82,7 @@ exports.postCart = (req, res, next) => {
     Product.findById(productId)
     .then(([product]) => {
         Cart.addProduct(productId, product[0].price)
-        .then(() => {
-            console.log('Deu boa final <---');
+        .then(() => {            
             res.redirect('/cart');
         })
         .catch(err => {
