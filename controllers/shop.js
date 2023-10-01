@@ -1,10 +1,11 @@
 const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
-    .then(Products => {
+    Product.find()
+    .then(products => {
+        console.log(products);
         res.render('shop/product-list', { 
-            prods: Products,
+            prods: products,
             pageTitle: 'All products', 
             path: '/products',
         });
@@ -31,7 +32,7 @@ exports.getProduct =(req, res, next) => {
 }
 
 exports.getIndex = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
     .then(Products => {
         res.render('shop/index', { 
             prods: Products,
@@ -45,8 +46,10 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getCart = (req, res, next) => {
-    req.user.getCart()
-    .then(products => {
+    req.user
+    .populate('cart.items.productId')
+    .then(user => {
+        products = user.cart.items
         res.render('shop/cart', {
             path: '/cart',
             pageTitle: 'Your Cart',
@@ -74,7 +77,7 @@ exports.postCart = (req, res, next) => {
 exports.postCartDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
 
-    req.user.deleteItemFromCart(prodId)
+    req.user.removeFromCart(prodId)
     .then(() => {
         res.redirect('/cart');
     })

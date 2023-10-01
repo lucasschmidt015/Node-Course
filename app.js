@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const mongoConnect = require('./util/database').mongoConnect;
+const mongoose = require('mongoose');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
@@ -18,9 +18,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
-    User.findById('65187e2291546681a1d33fee')
+    User.findById('6519ca762896bbba96622e49')
     .then(user => {
-        req.user = new User(user.name, user.email, user.cart, user._id);
+        req.user = user;
         next();
     })
     .catch(err => {
@@ -33,8 +33,23 @@ app.use(shopRouter);
 
 app.use(notFoundController.get404);
 
-mongoConnect(() => {
+mongoose.connect('mongodb+srv://lucasschmidt015:eHhMQePUAzCeWbzU@cluster0.nq2w9zx.mongodb.net/shop?retryWrites=true&w=majority')
+.then(result => {
+    User.findOne().then(user => {
+        if (!user) {
+            const newUser = new User({ 
+                name: 'Lucas',
+                email: 'teste@teste.com',
+                cart: {
+                    items: []
+                }
+             });
+             newUser.save();
+        }
+    })
+    
     app.listen(4000);
 })
+.catch(err => console.log(err));
 
 

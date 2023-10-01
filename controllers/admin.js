@@ -1,3 +1,4 @@
+const product = require('../models/product');
 const Product = require('../models/product');
 
 //you have to replace all occurrences of findById with findByPk()
@@ -15,7 +16,13 @@ exports.postAddProduct = (req, res) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(title, price, description, imageUrl, null, req.user._id)
+    const product = new Product({ 
+        title: title, 
+        imageUrl: imageUrl, 
+        price: price, 
+        description: description,
+        userId: req.user
+    });
     product.save()
     .then(result => {
         console.log('Created product');
@@ -59,10 +66,17 @@ exports.postEditProduct = (req, res, next) => {
     const updatedTitle = req.body.title;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDescription = req.body.description;
-    const updatePrice = req.body.price;
+    const updatedPrice = req.body.price;
     
-    const updatedProduct = new Product(updatedTitle, updatePrice, updatedDescription, updatedImageUrl, prodId);
-    updatedProduct.save()
+    Product.findById(prodId)
+    .then(product => {
+        product.title = updatedTitle;
+        product.price = updatedPrice;
+        product.imageUrl = updatedImageUrl;
+        product.description = updatedDescription;
+        
+        return product.save();
+    })
     .then(result => {
         res.redirect('/admin/products');
     })
@@ -72,7 +86,7 @@ exports.postEditProduct = (req, res, next) => {
 exports.postDeleteProduct = (req, res, next) => {
     const productId = req.body.productId;
 
-    Product.deleteById(productId)
+    Product.findByIdAndRemove(productId)
     .then(() => {
         res.redirect('/admin/products');    
     })
@@ -80,7 +94,9 @@ exports.postDeleteProduct = (req, res, next) => {
 }
 
 exports.getProducts = (req, res, next) => {
-    Product.fetchAll()
+    Product.find()
+    // .select('title price -_id')
+    // .populate('userId', 'name')
     .then(products => {
         res.render('admin/products', { 
             prods: products,
