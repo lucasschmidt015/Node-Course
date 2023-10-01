@@ -12,8 +12,7 @@ const userSchema = new Schema({
         required: true
     },
     cart: {
-        items: 
-        [{
+        items: [{
              productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
              quantity: { type: Number, required: true } 
         }]
@@ -46,6 +45,11 @@ userSchema.methods.removeFromCart = function(productId) {
     const updatedCartItems = this.cart.items.filter(i => i.productId.toString() !== productId.toString());
 
     this.cart.items = updatedCartItems;
+    return this.save();
+}
+
+userSchema.methods.clearCart = function() {
+    this.cart = { items: [] };
     return this.save();
 }
 
