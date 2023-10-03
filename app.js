@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
+const authRouter = require('./routes/auth');
 const notFoundController = require('./controllers/error');
 
 const User = require('./models/user');
@@ -30,6 +31,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRouter);
 app.use(shopRouter);
+app.use(authRouter);
 
 app.use(notFoundController.get404);
 
