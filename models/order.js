@@ -14,6 +14,10 @@ const orderSchema = new Schema({
       type: Schema.Types.ObjectId,
       required: true,
       ref: 'User'
+    },
+    email: {
+      type: String,
+      required: true,
     }
   }
 });
