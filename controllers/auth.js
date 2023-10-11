@@ -1,6 +1,20 @@
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
+const { parsed: {USER_EMAIL_SERVER, PASS_EMAIL_SERVER} } = require('dotenv').config();
 
 const User = require('../models/user');
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: USER_EMAIL_SERVER,
+    pass: PASS_EMAIL_SERVER,
+  }
+});
+
 
 exports.getLogin = (req, res, next) => {
 
@@ -97,6 +111,14 @@ exports.postSignup = (req, res, next) => {
       return user.save();
     })
     .then((result) => {
+      return transporter.sendMail({
+        to: email,
+        from: `Lucas <${USER_EMAIL_SERVER}>`,
+        subject: 'Signup succeeded',
+        html: '<h1>You successfully signed up!</h1>'
+      });
+    })
+    .then( response => {
       res.redirect('/login');
     })
 
