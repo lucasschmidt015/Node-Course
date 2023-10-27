@@ -238,13 +238,13 @@ form {
   border: 1px solid #4771fa;
   padding: 0.5rem;
   border-radius: 3px;
-  background-color: #b9c9ff;
+  background: #b9c9ff;
   text-align: center;
 }
 
 .user-message--error {
   border-color: red;
-  background-color: #e1b0b0;
+  background: rgb(255, 176, 176);
   color: red;
 }
 
@@ -256,8 +256,8 @@ form {
   #side-menu-toggle {
     display: none;
   }
-  
+
   .user-message {
     width: 30rem;
-  } 
+  }
 }
